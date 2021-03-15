@@ -116,8 +116,28 @@ class CodeWriter:
         else:
             self.emit_raw('\n')
 
-    def mk_indent(self) -> str:
-        return ('\t' if self.use_tabs else ' ') * self.cur_indent
+    def emit_multi_endline(self, s: str = '') -> None:
+        """
+        Adds indentation, then the input string, and lastly a newline to the
+        output buffer. If s is an empty string (default) then an empty line is
+        created with no indentation.
+        """
+        if s:
+            assert not s.endswith("\n"), \
+                'String to emit cannot contain newline at end strings.'
+            lst_s = s.split("\n")
+            i = -1
+            for s_str in lst_s:
+                i += 1
+                if not i:
+                    self.emit_raw('%s%s\n' % (self.mk_indent(), s_str))
+                else:
+                    self.emit_raw('%s%s\n' % (self.mk_indent(1), s_str))
+        else:
+            self.emit_raw('\n')
+
+    def mk_indent(self, add_indent=0) -> str:
+        return ('\t' if self.use_tabs else ' ') * (self.cur_indent + add_indent)
 
     def mk_one_indent(self) -> str:
         return ('\t' if self.use_tabs else ' ') * self.default_dent
